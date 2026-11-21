@@ -28,6 +28,13 @@ const pad = n => String(n).padStart(2,"0");
 const fmtDate = d => `${d.getFullYear()}.${pad(d.getMonth()+1)}.${pad(d.getDate())}`;
 const ymd = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
 const sortBy = (arr, order) => arr.sort((a,b) => (order.indexOf(a)+1||99) - (order.indexOf(b)+1||99));
+/* 山の色を、霞がかった淡い色にする（t=1 で真っ白に近づく） */
+const tint = (hex, t) => {
+  const n = parseInt(hex.slice(1), 16), base = [246,248,245];
+  const c = [n>>16 & 255, n>>8 & 255, n & 255].map((v,i) => Math.round(v + (base[i]-v)*t));
+  return `rgb(${c.join(",")})`;
+};
+const gvars = g => `--g1:${tint(g[0],.7)};--g2:${tint(g[1],.8)}`;
 const paras = t => String(t||"").split(/\r?\n\s*\r?\n|\r?\n/).map(s=>s.trim()).filter(Boolean).map(s=>`<p>${esc(s)}</p>`).join("");
 
 /* ---------- データの下ごしらえ ---------- */
@@ -212,7 +219,7 @@ function renderDiary(note){
   $("logs").innerHTML = LOGS.length ? LOGS.map(r => {
     const g = r.mountain ? r.mountain.g : ["#2f5b45","#183128"];
     return `<article class="log" data-diary="${r.key}" tabindex="0" role="button" aria-label="${esc(r.title || r.mountainName)}の日記を読む">
-      <div class="log-media" style="--g1:${g[0]};--g2:${g[1]}">${thumbHTML(r)}<span class="log-date">${fmtDate(r.date)}</span></div>
+      <div class="log-media" style="${gvars(g)}">${thumbHTML(r)}<span class="log-date">${fmtDate(r.date)}</span></div>
       <div class="log-body">
         <div class="log-mtn">${esc(r.mountainName)}${r.mountain?` <span style="color:var(--ink-3);font-weight:500">${esc(r.mountain.pref)}</span>`:""}${r.sample ? `<span class="sample">見本</span>` : ""}</div>
         <h3 class="log-title">${esc(r.title || `${r.mountainName}をてくてく`)}</h3>
@@ -258,7 +265,7 @@ function openDiary(key, fromHash){
     media = `<div class="noimg">${esc(r.mountain ? r.mountain.en : "SANPO")}</div>`;
   }
   $("dlgBody").innerHTML = `
-    <div class="dlg-media" style="--g1:${g[0]};--g2:${g[1]}">${media}</div>
+    <div class="dlg-media" style="${gvars(g)}">${media}</div>
     <div class="dlg-body">
       <div style="display:flex;gap:12px;align-items:baseline;flex-wrap:wrap">
         <span class="dlg-date">${fmtDate(r.date)}</span>
@@ -321,10 +328,11 @@ function ridgeSVG(m){
       const near = Math.max(0, 1 - Math.abs(x-peakX)/150);
       d += ` L${x} ${(base - near*peak - r()*amp).toFixed(1)}`;
     }
-    return `<path d="${d} L400 150 L0 150Z" fill="${fill}" opacity="${op}"/>`;
+    return `<path d="${d} L400 150 L0 150Z" style="fill:${fill}" opacity="${op}"/>`;
   };
+  // 奥の稜線ほど淡く、手前ほど濃く（空気遠近法）
   return `<svg viewBox="0 0 400 150" preserveAspectRatio="none" aria-hidden="true">
-    ${layer(110,18,40,"#000",.18)}${layer(130,14,70,"#000",.3)}${layer(150,10,20,"#141c1a",1)}</svg>`;
+    ${layer(110,18,40,tint(m.g[0],.55),.55)}${layer(130,14,70,tint(m.g[0],.38),.55)}${layer(150,10,20,"var(--panel)",1)}</svg>`;
 }
 
 function routeHTML(route){
@@ -415,7 +423,7 @@ function cardHTML(m, i){
     m.logs.length ? `<span class="done-badge">✓ 登った${m.logs.length>1?` ×${m.logs.length}`:""}</span>` : "",
     m.memo ? `<span class="memo-badge">✎ メモ</span>` : "",
   ].join("");
-  return `<article class="card" id="m-${m.id}" data-m="${m.id}" style="--g1:${m.g[0]};--g2:${m.g[1]}">
+  return `<article class="card" id="m-${m.id}" data-m="${m.id}" style="${gvars(m.g)}">
     <div class="c-top">${ridgeSVG(m)}
       <span class="c-no">No.${String(i+1).padStart(2,"0")}</span>
       <span class="c-elev">${m.elev.toLocaleString()}<small>m</small></span>
@@ -526,13 +534,13 @@ const svg = $("radarSvg");
 const CX = 300, MAXMIN = 210, RR = 260;
 const rad = min => Math.min(min, MAXMIN) / MAXMIN * RR;
 function drawRadar(){
-  let out = `<defs><linearGradient id="swl" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#d9ff5a" stop-opacity="0"/><stop offset="1" stop-color="#d9ff5a" stop-opacity=".22"/></linearGradient></defs>`;
+  let out = `<defs><linearGradient id="swl" x1="0" y1="0" x2="1" y2="0"><stop offset="0" style="stop-color:var(--accent);stop-opacity:0"/><stop offset="1" style="stop-color:var(--accent);stop-opacity:.18"/></linearGradient></defs>`;
   out += `<g class="sweep"><path d="M${CX} ${CX} L${CX} ${CX-RR} A${RR} ${RR} 0 0 1 ${CX+RR*Math.sin(Math.PI/5)} ${CX-RR*Math.cos(Math.PI/5)} Z" fill="url(#swl)"/></g>`;
   [60,120,180].forEach(t => {
     out += `<circle class="ring" cx="${CX}" cy="${CX}" r="${rad(t)}"/>`;
     out += `<text class="ring-label" x="${CX+4}" y="${CX-rad(t)-6}">${t/60}H</text>`;
   });
-  out += `<circle class="ring" cx="${CX}" cy="${CX}" r="${RR}" style="stroke:#33423c"/>`;
+  out += `<circle class="ring" cx="${CX}" cy="${CX}" r="${RR}" style="stroke:var(--line-2)"/>`;
   [0,45,90,135].forEach(a => {
     const x = Math.sin(a*Math.PI/180)*RR, y = -Math.cos(a*Math.PI/180)*RR;
     out += `<line class="axis" x1="${CX-x}" y1="${CX-y}" x2="${CX+x}" y2="${CX+y}"/>`;
@@ -569,7 +577,7 @@ function drawRadar(){
       <text x="${p.lx}" y="${p.ly+4}" text-anchor="${p.left?"end":"start"}">${esc(p.m.name)}</text>
     </g>`;
   });
-  out += `<circle class="hub" cx="${CX}" cy="${CX}" r="7"/><circle cx="${CX}" cy="${CX}" r="14" fill="none" stroke="#d9ff5a" opacity=".4"/>
+  out += `<circle class="hub" cx="${CX}" cy="${CX}" r="7"/><circle cx="${CX}" cy="${CX}" r="14" fill="none" style="stroke:var(--accent)" opacity=".4"/>
     <text class="hub-label" x="${CX}" y="${CX+30}" text-anchor="middle">${esc(CFG.origin||"東京駅")}</text>`;
   svg.innerHTML = out;
 }
