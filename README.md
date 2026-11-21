@@ -84,15 +84,20 @@
 
 ---
 
-## ネットに公開する（GitHub Pages）
+## 公開のしくみ（GitHub ＋ Vercel）
 
-1. GitHub のアカウントを作る
-2. 新しいリポジトリを作る（例：`tekuteku-sanpo`、Public）
-3. このフォルダの中身をすべてアップロード（「Add file → Upload files」でドラッグ）
-4. リポジトリの **Settings → Pages** で、Branch を `main`、フォルダを `/ (root)` にして保存
-5. 数分後、`https://（ユーザー名）.github.io/tekuteku-sanpo/` で見られるようになる
+- 公開中のサイト：https://tekuteku-sanpo.vercel.app/
+- GitHub リポジトリ：https://github.com/paphoon/tekutesku （非公開）
+- Vercel プロジェクト：`tekuteku-sanpo`
 
-更新するときは、変えたファイルを同じようにアップロードし直します。
+このフォルダの変更を GitHub の `main` に上げると、Vercel が自動でサイトを更新します（1 分ほど）。
+更新するときは Claude に「GitHub に上げて」と頼めば OK です。自分で上げるときは、このフォルダで次を実行します。
+
+```
+git add -A
+git commit -m "更新内容のメモ"
+git push
+```
 `assets/style.css` や `assets/app.js` を変えたときは、`index.html` の中の `?v=3` の数字を 1 つ増やしてください（古い見た目が残るのを防ぎます）。
 
 ---
