@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>てくてく、さんぽ</title>
+<meta name="description" content="東京駅から、てくてく山へ。日帰りで行ける山と登山ルート・縦走ルート、そして歩いた記録をまとめた山旅サイト。">
+<meta property="og:title" content="てくてく、さんぽ">
+<meta property="og:description" content="東京駅から、てくてく山へ。日帰りの山と登山ルート・縦走ルート、歩いた記録。">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230b0f0e'/%3E%3Cpath d='M3 26 L12 11 L17 18 L21 13 L29 26 Z' fill='%23d9ff5a'/%3E%3Ccircle cx='24' cy='8' r='3' fill='%23ff7a45'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Klee+One:wght@600&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css?v=3">
+</head>
+<body>
+
+<header class="nav" id="nav">
+  <a href="#top" class="logo" aria-label="てくてく、さんぽ トップ">
+    <img class="mascot-logo" data-mascot alt="" hidden>
+    <svg viewBox="0 0 32 32" aria-hidden="true" data-mascot-fallback><path d="M2 26 L12 10 L17 18 L21 13 L30 26 Z" fill="#d9ff5a"/><circle cx="24" cy="7" r="3" fill="#ff7a45"/></svg>
+    <span class="lt">TEKUTEKU SANPO</span>
+  </a>
+  <ul>
+    <li><a href="#radar">RADAR</a></li>
+    <li><a href="#diary">DIARY</a></li>
+    <li><a href="#traverse">TRAVERSE</a></li>
+    <li><a href="#routes">ROUTES</a></li>
+  </ul>
+</header>
+
+<main id="top">
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-sky"></div>
+  <div class="sun" id="sun"></div>
+  <img class="hero-mascot" data-mascot alt="" hidden>
+  <svg class="ridges" viewBox="0 0 1440 600" preserveAspectRatio="none" aria-hidden="true">
+    <path data-depth="0.08" fill="#1c2a24" d="M0 330 L120 260 L210 300 L330 190 L420 250 L520 160 L640 240 L760 140 L880 230 L980 170 L1100 250 L1220 180 L1340 260 L1440 210 L1440 600 L0 600Z"/>
+    <path data-depth="0.16" fill="#15211c" d="M0 400 L90 340 L200 380 L300 300 L420 370 L560 280 L680 360 L800 300 L940 380 L1060 310 L1180 370 L1300 320 L1440 380 L1440 600 L0 600Z"/>
+    <path data-depth="0.26" fill="#0f1815" d="M0 470 L140 410 L260 450 L400 380 L520 440 L660 400 L800 460 L940 400 L1080 450 L1220 410 L1340 450 L1440 420 L1440 600 L0 600Z"/>
+    <path data-depth="0.38" fill="#0b0f0e" d="M0 540 L180 500 L340 530 L520 490 L700 530 L880 500 L1060 535 L1240 500 L1440 530 L1440 600 L0 600Z"/>
+  </svg>
+  <div class="wrap hero-content">
+    <div class="kicker">FROM TOKYO STATION — MOUNTAIN WALKS</div>
+    <h1>TEKUTEKU<br>SANPO<span class="jp">てくてく、さんぽ。</span></h1>
+    <p class="lead">東京駅から、電車とバスで（ときどき車で）てくてく山へ。日帰りで行ける山と、その登り方・縦走ルート、そして歩いた記録をまとめています。</p>
+    <div class="hero-stats">
+      <div><b id="statCount">–</b><span>MOUNTAINS</span></div>
+      <div><b id="statCourses">–</b><span>ROUTES</span></div>
+      <div><b id="statTrav">–</b><span>TRAVERSES</span></div>
+      <div class="hl"><b id="statDone">–</b><span>CLIMBED</span></div>
+    </div>
+  </div>
+  <div class="scroll-cue">SCROLL</div>
+</section>
+
+<!-- RADAR -->
+<section class="radar-sec" id="radar">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <div class="num">01 /</div>
+        <h2>ACCESS RADAR<small>東京駅からの距離と方角</small></h2>
+      </div>
+      <p>中心が東京駅。外の円ほど時間がかかります。点を押すと山の情報が出ます。</p>
+    </div>
+    <div class="radar-grid">
+      <svg class="radar" id="radarSvg" viewBox="0 0 600 600" role="img" aria-label="東京駅を中心とした山の方角とアクセス時間の図"></svg>
+      <div>
+        <div class="radar-info" id="radarInfo" aria-live="polite"></div>
+        <div class="legend">
+          <span><i style="background:var(--lv1)"></i>初級</span>
+          <span><i style="background:var(--lv2)"></i>中級</span>
+          <span><i style="background:var(--lv3)"></i>上級</span>
+          <span><i class="ring"></i>登った山</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DIARY -->
+<section class="log-sec" id="diary">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <div class="num">02 /</div>
+        <h2>TEKUTEKU DIARY<small>てくてく日記 — 歩いて、思ったこと</small></h2>
+      </div>
+      <p>歩いた日の感想を、のんびり気ままに。動画は YouTube、くわしい軌跡と写真は YAMAP にあります。</p>
+    </div>
+    <div class="log-stats" id="logStats"></div>
+    <div class="logs" id="logs"><p class="log-empty">記録を読み込んでいます…</p></div>
+    <p class="log-note" id="logNote"></p>
+  </div>
+</section>
+
+<!-- TRAVERSE -->
+<section id="traverse" style="padding-top:40px">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <div class="num">03 /</div>
+        <h2>TRAVERSE<small>縦走ルート — 尾根をつないで歩く</small></h2>
+      </div>
+      <p>登った山とは別の場所へ下りる、縦走のルートだけを集めました。いくつもの山頂をつなぐコースもあります。押すとくわしい行き方と帰り方が出ます。</p>
+    </div>
+    <div class="toolbar plain">
+      <div class="row">
+        <div class="tb-group"><span class="tb-label">LEVEL</span><div class="chips" id="travLv"></div></div>
+        <div class="tb-group"><span class="tb-label">PEAKS</span><div class="chips" id="travPk"></div></div>
+      </div>
+    </div>
+    <div class="trav-list" id="travList"></div>
+  </div>
+</section>
+
+<!-- ROUTES -->
+<section id="routes" style="padding-bottom:60px;padding-top:40px">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <div class="num">04 /</div>
+        <h2>ROUTES<small>山ごとの登山ルート</small></h2>
+      </div>
+      <p>1つの山にいくつもの登り方があります。カードの中のタブでコースを切り替えられます。時間は目安で、乗り継ぎによって変わります。</p>
+    </div>
+  </div>
+  <div class="toolbar">
+    <div class="wrap">
+      <div class="tb-group" id="regionGroup"><span class="tb-label">REGION</span><div class="chips" id="regionChips"></div></div>
+      <div class="tb-group"><span class="tb-label">AREA</span><div class="chips" id="prefChips"></div></div>
+      <div class="tb-group"><span class="tb-label">LEVEL</span><div class="chips" id="lvChips"></div></div>
+      <div class="tb-group"><span class="tb-label">TYPE</span><div class="chips" id="typeChips"></div></div>
+      <div class="tb-end">
+        <span class="count" id="count"></span>
+        <select class="sort" id="sort" aria-label="並び替え">
+          <option value="access">アクセスが近い順</option>
+          <option value="elev">標高が高い順</option>
+          <option value="time">歩く時間が短い順</option>
+          <option value="courses">コースが多い順</option>
+          <option value="done">登った山・メモのある山を先に</option>
+        </select>
+      </div>
+    </div>
+  </div>
+  <div class="wrap">
+    <div class="cards" id="cards"></div>
+  </div>
+</section>
+
+<!-- TIPS -->
+<section id="tips">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <div class="num">05 /</div>
+        <h2>BEFORE YOU GO<small>山旅の心得</small></h2>
+      </div>
+    </div>
+    <div class="tips">
+      <div class="tip"><b>06:30</b><h4>早く出る</h4><p>東京駅を朝7時までに出るのが目安。縦走は歩く時間が長いので、始発に近い電車で出ると安心です。</p></div>
+      <div class="tip"><b>15:00</b><h4>下山は15時まで</h4><p>山の日暮れは早く、特に秋から冬は16時台に暗くなります。ヘッドライトは日帰りでも持っていきます。</p></div>
+      <div class="tip"><b>EXIT</b><h4>縦走は逃げ道を決める</h4><p>縦走は途中で引き返しにくいコースです。途中で下りられる道と、下りた先のバス停を先に調べておきましょう。</p></div>
+      <div class="tip"><b>CAR</b><h4>車なら往復・周回</h4><p>車で行くときは、駐車場に戻ってこられる往復か周回のルートが便利です。人気の山の駐車場は朝早くに満車になります。</p></div>
+      <div class="tip"><b>CHECK</b><h4>最新情報を確認</h4><p>登山道の通行止め、バスの運休、火山の規制はよくあります。出かける前に自治体や交通会社、気象庁の情報を見てください。</p></div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="big">TEKUTEKU SANPO</div>
+    <div class="foot-row">
+      <p>掲載している所要時間・コースタイム・距離はおおよその目安です。実際の時刻表と登山情報を必ずご確認ください。<br>動画は YouTube、記録の軌跡と写真は YAMAP のページにリンクしています。</p>
+      <a class="foot-yt" id="footYt" href="#" target="_blank" rel="noopener"><img data-mascot alt="" hidden><i></i>YouTube「てくてく、さんぽ」</a>
+    </div>
+    <p style="margin-top:28px">© <span id="year"></span> てくてく、さんぽ</p>
+  </div>
+</footer>
+
+<!-- 日記を読む画面 -->
+<dialog class="diary-dlg" id="diaryDlg" aria-labelledby="dlgTitle">
+  <div class="dlg-inner">
+    <button type="button" class="dlg-close" id="dlgClose" aria-label="閉じる">×</button>
+    <div id="dlgBody"></div>
+  </div>
+</dialog>
+
+<script src="data/config.js"></script>
+<script src="data/mountains.js"></script>
+<script src="data/courses.js"></script>
+<script src="data/records.js"></script>
+<script src="data/memos.js"></script>
+<script src="assets/app.js?v=3"></script>
+</body>
+</html>
