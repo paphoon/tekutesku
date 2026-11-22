@@ -25,6 +25,15 @@ TEKU.config = {
   // 登った日から何日たったら記録を表示するか（留守が分からないように）
   recordDelayDays: 3,
 
+  // 「晴れそうな山の候補」の下に並べる、山の天気の専門サイト（中身は載せず、リンクだけ）
+  // 山ごとのページの URL がわかったら、mountains.js の山に weather:{yamatenki:"URL"} のように書けます。
+  weatherLinks: [
+    {id:"yamatenki", name:"山の天気予報", url:"https://i.yamatenki.co.jp/"},
+    {id:"tenkura",   name:"てんきとくらす（登山指数）", url:"https://tenkura.n-kishou.co.jp/tk/"},
+    {id:"tenkijp",   name:"tenki.jp 登山天気", url:"https://tenki.jp/mountain/"},
+    {id:"jma",       name:"気象庁 天気予報", url:"https://www.jma.go.jp/bosai/forecast/"},
+  ],
+
   // ご意見募集（Supabase）。この鍵は「送る」ことしかできない公開用の鍵です。
   // 届いた意見は Supabase の管理画面 → Table Editor → feedback で読めます。
   feedback: {

@@ -64,9 +64,12 @@ MOUNTAINS.forEach(m => {
 /* ---------- 電車／車 ---------- */
 let mode = "train";
 try { if (localStorage.getItem("teku-mode") === "car") mode = "car"; } catch {}
-const carMin = (m, c) => (c && c.car && c.car.min) || (m.car && m.car.min) || null;
-const accessOf = (m, c) => mode === "car" ? (carMin(m, c) || m.access) : ((c && c.access) || m.access);
+// 登山口が山の基本と違うルート（c.route がある）は、山の駐車場の情報を使わない
+const carOf = (m, c) => (c && c.car) || (c && c.route ? null : m.car);
+const carMin = (m, c) => { const x = carOf(m, c); return (x && x.min) || null; };
+const accessOf = (m, c) => mode === "car" ? (c ? carMin(m, c) : (carMin(m) || m.access)) : ((c && c.access) || m.access);
 const MODE_LABEL = {train:"🚃 電車・バス", car:"🚗 車"};
+const WX = {ready:false, days:[], data:{}, sel:null};   // 天気の目安（あとで読み込む）
 (TEKU.memos||[]).forEach(x => {
   const m = findMountain(x.mountain);
   if (m && (x.tip || MEMO_ROWS.some(([k]) => x[k]))) m.memo = x;
@@ -354,8 +357,33 @@ function pathHTML(path){
     return (k?"<i></i>":"") + `<span class="${cls}">${esc(p)}</span>`;
   }).join("")}</div>`;
 }
+/* ---------- Google マップ（API キー不要のリンク） ---------- */
+const gq = s => encodeURIComponent(String(s||"").replace(/（.*?）|\(.*?\)/g," ").replace(/\s+/g," ").trim());
+const gPlace = q => `https://www.google.com/maps/search/?api=1&query=${gq(q)}`;
+const gDir = (dest, how) => `https://www.google.com/maps/dir/?api=1&origin=${gq(CFG.origin||"東京駅")}&destination=${gq(dest)}&travelmode=${how}`;
+function mapsHTML(m, c){
+  const route = c.route || m.route;
+  const trail = route[route.length-1][0];
+  const goal = c.path[c.path.length-1];
+  const geo = (TEKU.geo||{})[m.id];
+  const btn = (href, label) => `<a class="mp" href="${esc(href)}" target="_blank" rel="noopener">${label}</a>`;
+  const out = [];
+  const car = carOf(m, c);
+  if (mode === "car" && car && car.parking){
+    out.push(btn(gPlace(`${car.parking} ${m.pref}`), "🅿 駐車場"));
+    out.push(btn(gDir(`${car.parking} ${m.pref}`, "driving"), "🧭 東京駅から車で"));
+  } else {
+    out.push(btn(gPlace(`${trail} ${m.pref}`), "📍 登山口"));
+    out.push(btn(gDir(`${trail} ${m.pref}`, mode === "car" ? "driving" : "transit"), mode === "car" ? "🧭 東京駅から車で" : "🧭 東京駅から電車で"));
+  }
+  if (goal && goal !== trail && c.type === "縦走") out.push(btn(gPlace(`${goal} ${m.pref}`), "🏁 下山口"));
+  if (geo) out.push(btn(`https://www.google.com/maps/search/?api=1&query=${geo[0]},${geo[1]}`, "⛰ 山頂"));
+  return `<div class="maps"><span class="sub" style="margin:0">GOOGLE MAPS</span>${out.join("")}</div>`;
+}
+
 function carText(m, c){
-  const car = Object.assign({}, m.car||{}, c.car||{});
+  const car = carOf(m, c);
+  if (!car) return "";
   return [car.min ? `東京駅から約${fmtH(car.min)}` : car.time, car.via, car.parking, car.note].filter(Boolean).join(" ・ ");
 }
 function panelHTML(m, c){
@@ -372,7 +400,7 @@ function panelHTML(m, c){
       <div class="right"><span class="tb" data-t="${c.type}">${c.type}</span><span class="suit">${suit}</span></div>
     </div>
     <div class="c-kpi">
-      <div><b>${fmtH(access)}</b><span>${mode==="car"?"🚗":"🚃"} 東京駅から</span></div>
+      <div><b>${access ? fmtH(access) : "–"}</b><span>${mode==="car"?"🚗":"🚃"} 東京駅から</span></div>
       <div><b>${c.walk ? fmtH(c.walk) : "–"}</b><span>歩く時間</span></div>
       <div><b>${c.dist ? c.dist+"km" : "–"}</b><span>歩く距離</span></div>
     </div>
@@ -384,7 +412,8 @@ function panelHTML(m, c){
       <div><div class="sub">ACCESS — 行き方</div>${routeHTML(route)}</div>
       ${back ? `<div class="back"><b>帰り</b><span>${esc(back)}</span></div>` : ""}
       ${car ? `<div class="back car"><b>車</b><span>${esc(car)}</span></div>` : ""}
-    </div>`;
+    </div>
+    ${mapsHTML(m, c)}`;
 }
 
 const state = {region:"すべて", pref:"すべて", lv:0, type:"すべて", sort:"access"};
@@ -443,6 +472,7 @@ function cardHTML(m, i){
       <h3 class="c-name">${esc(m.name)}<span>${esc(m.en)}</span></h3>
       ${memoHTML(m)}
       <p class="c-desc">${esc(m.desc)}</p>
+      ${WX.ready && WX.data[m.id] ? `<div class="c-wx"><span class="sub" style="background:none;border:0;padding:0;margin:0">天気の目安</span>${WX.days.map(d => { const w = WX.data[m.id][d.key]; return w ? `<span title="${esc(w.text)}">${esc(d.label)} <b>${w.icon}</b></span>` : ""; }).join("")}</div>` : ""}
       ${mylog}
       <div class="ctabs" role="tablist" aria-label="${esc(m.name)}の登山ルート">${tabs}</div>
       <div class="cpanel" role="tabpanel">${panelHTML(m, sel)}</div>
@@ -567,6 +597,7 @@ function drawRadar(){
       <circle r="16" fill="${col}" opacity=".12"/>
       ${m.logs.length ? `<circle class="done" r="11"/>` : ""}
       <polyline stroke="${col}" stroke-opacity=".5" fill="none" points="0,0 0,0"/>
+      <circle class="sunring" r="10"/>
       <circle class="core" r="6" fill="${col}"/>
       <text>${esc(m.name)}</text>
     </g>`;
@@ -575,6 +606,7 @@ function drawRadar(){
     <text class="hub-label" x="${CX}" y="${CX+30}" text-anchor="middle">${esc(CFG.origin||"東京駅")}</text>`;
   svg.innerHTML = out;
   placeDots(false);
+  applyWxRadar();
 }
 
 function radarLayout(){
@@ -629,6 +661,7 @@ function setMode(next, animate){
     ? "車の時間は、東京駅から登山口の駐車場までの目安です（渋滞なし）。縦走は駐車場に戻りにくいので、往復・周回のルートがおすすめです。"
     : "電車の時間は、東京駅から登山口までの電車とバスの目安です。乗り継ぎによって変わります。";
   if (svg.querySelector(".dot")) placeDots(animate);
+  if (WX.ready) renderSky();
   showInfo(currentInfo);
   if (animate) render();
 }
@@ -653,6 +686,7 @@ function showInfo(id){
         ${m.car.parking ? `<dt>駐車場</dt><dd>${esc(m.car.parking)}</dd>` : ""}
         ${m.car.note ? `<dt>ひとこと</dt><dd>${esc(m.car.note)}</dd>` : ""}
       </dl>` : ""}
+    ${wxOf(m.id) ? `<div class="c-wx" style="margin-top:12px"><span>${esc(WX.days.find(d=>d.key===WX.sel).label)}の天気（目安） <b>${wxOf(m.id).icon} ${esc(wxOf(m.id).text)}</b></span></div>` : ""}
     ${memoLine ? `<div class="ri-memo">${mascotImg() || "✎"}<span>${esc(memoLine)}</span></div>` : `<p>${esc(m.desc)}</p>`}
     <div class="ri-courses">${counts.map(([t,n])=>`<span class="tb" data-t="${t}">${t} ${n}</span>`).join("")}</div>
     <a class="btn" href="#m-${m.id}" data-jump="${m.id}">ルートを見る →</a>`;
@@ -663,6 +697,103 @@ info.addEventListener("click", e => {
   const a = e.target.closest("[data-jump]"); if (!a) return;
   e.preventDefault(); jumpTo(a.dataset.jump);
 });
+
+/* ============================================================
+   晴れそうな山の候補（Open-Meteo の一般向け予報。目安）
+   ============================================================ */
+function wxOf(id){ return WX.ready && WX.data[id] ? WX.data[id][WX.sel] : null; }
+function applyWxRadar(){
+  svg.querySelectorAll(".dot").forEach(g => {
+    const w = wxOf(g.dataset.id);
+    g.classList.toggle("wx-sun", !!w && w.cat === "sun");
+    g.classList.toggle("wx-bad", !!w && (w.cat === "rain" || w.cat === "wind"));
+  });
+}
+const WX_CAT = {
+  sun:  {icon:"☀", title:"晴れ間が多そう"},
+  cloud:{icon:"☁", title:"くもりがち"},
+  wind: {icon:"💨", title:"風が強そう"},
+  rain: {icon:"☂", title:"雨が心配"},
+};
+const jstKey = d => new Intl.DateTimeFormat("en-CA", {timeZone:"Asia/Tokyo"}).format(d);
+function buildDays(){
+  const days = [], WD = ["日","月","火","水","木","金","土"];
+  for (let i=0; i<7; i++){
+    const d = new Date(Date.now() + i*864e5), key = jstKey(d);
+    const [y,mo,da] = key.split("-").map(Number);
+    const wd = new Date(y, mo-1, da).getDay();
+    const label = i===0 ? "今日" : i===1 ? "明日" : (wd===6 ? "土曜" : wd===0 ? "日曜" : "");
+    if (label && !days.some(x=>x.key===key)) days.push({key, label, sub:`${mo}/${da}（${WD[wd]}）`});
+  }
+  return days;
+}
+function summarize(h, dayKey){
+  const idx = h.time.map((t,i)=>[t,i]).filter(([t]) => t.startsWith(dayKey) && +t.slice(11,13) >= 6 && +t.slice(11,13) <= 15).map(([,i])=>i);
+  if (!idx.length) return null;
+  const avg = a => a.reduce((s,v)=>s+(v||0),0) / a.length;
+  const pick = k => idx.map(i => h[k] ? h[k][i] : 0);
+  const pp = avg(pick("precipitation_probability")), ppMax = Math.max(...pick("precipitation_probability"));
+  const cc = avg(pick("cloud_cover")), gust = Math.max(...pick("wind_gusts_10m"));
+  const rain = pick("precipitation").reduce((s,v)=>s+(v||0),0);
+  const thunder = pick("weather_code").some(c => c >= 95);
+  let cat;
+  if (thunder || pp >= 50 || rain >= 3) cat = "rain";
+  else if (gust >= 15) cat = "wind";
+  else if (cc < 50 && ppMax < 30) cat = "sun";
+  else cat = "cloud";
+  const score = pp*1.2 + cc*0.5 + Math.max(0, gust-8)*4 + (thunder?50:0) + rain*5;
+  const text = `${WX_CAT[cat].title}・雨${Math.round(pp)}%・風${Math.round(gust)}m/s${thunder?"・雷":""}`;
+  return {cat, icon:WX_CAT[cat].icon, text, pp, gust, score};
+}
+async function loadWeather(){
+  WX.days = buildDays(); WX.sel = WX.days[0].key;
+  const list = MOUNTAINS.filter(m => (TEKU.geo||{})[m.id]);
+  let raw = null;
+  try { const c = JSON.parse(sessionStorage.getItem("teku-wx")||"null"); if (c && Date.now()-c.t < 30*60e3 && c.n === list.length) raw = c.raw; } catch {}
+  if (!raw){
+    const p = new URLSearchParams({
+      latitude: list.map(m=>TEKU.geo[m.id][0]).join(","),
+      longitude: list.map(m=>TEKU.geo[m.id][1]).join(","),
+      elevation: list.map(m=>m.elev).join(","),
+      hourly: "weather_code,precipitation_probability,precipitation,cloud_cover,wind_gusts_10m",
+      timezone: "Asia/Tokyo", forecast_days: "7", wind_speed_unit: "ms",
+    });
+    const res = await fetch(`https://api.open-meteo.com/v1/forecast?${p}`);
+    if (!res.ok) throw new Error(res.status);
+    raw = await res.json();
+    if (!Array.isArray(raw)) raw = [raw];
+    try { sessionStorage.setItem("teku-wx", JSON.stringify({t:Date.now(), n:list.length, raw})); } catch {}
+  }
+  list.forEach((m,i) => {
+    const h = raw[i] && raw[i].hourly; if (!h) return;
+    WX.data[m.id] = Object.fromEntries(WX.days.map(d => [d.key, summarize(h, d.key)]).filter(([,v]) => v));
+  });
+  WX.ready = true;
+}
+function renderSky(){
+  $("skyDays").innerHTML = WX.days.map(d => `<button type="button" data-day="${d.key}" aria-pressed="${d.key===WX.sel}"><b>${esc(d.label)}</b>${esc(d.sub)}</button>`).join("");
+  const rows = MOUNTAINS.map(m => ({m, w: wxOf(m.id)})).filter(x => x.w).sort((a,b) => a.w.score - b.w.score);
+  const group = (cats, title, cls) => {
+    const items = rows.filter(x => cats.includes(x.w.cat));
+    return `<div class="sky-g ${cls}"><h3>${title}<span class="n">${items.length}</span></h3>${items.length ? `<ul>${items.map(({m,w}) =>
+      `<li><button type="button" data-goto="${m.id}"><span>${w.icon} ${esc(m.name)}</span><span class="wx">雨${Math.round(w.pp)}%・風${Math.round(w.gust)}m/s</span><span class="tm">${mode==="car"?"🚗":"🚃"}${fmtH(accessOf(m))}</span></button></li>`).join("")}</ul>` : `<p class="none">なし</p>`}</div>`;
+  };
+  $("skyBody").innerHTML = `<div class="sky-groups">
+    ${group(["sun"], "☀ 晴れ間が多そう", "is-sun")}
+    ${group(["cloud"], "☁ くもりがち", "")}
+    ${group(["rain","wind"], "☂ 雨や風が心配", "")}
+  </div>`;
+}
+$("skyLinks").innerHTML = `<span class="sub" style="margin:0">行く前は、山専門の天気予報で確認</span>` +
+  (CFG.weatherLinks||[]).map(l => `<a class="mp" href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.name)} ↗</a>`).join("");
+$("skyDays").addEventListener("click", e => {
+  const b = e.target.closest("[data-day]"); if (!b) return;
+  WX.sel = b.dataset.day; renderSky(); applyWxRadar(); showInfo(currentInfo);
+});
+$("skyBody").addEventListener("click", e => { const b = e.target.closest("[data-goto]"); if (b) jumpTo(b.dataset.goto); });
+loadWeather()
+  .then(() => { renderSky(); applyWxRadar(); showInfo(currentInfo); render(); })
+  .catch(() => { $("skyBody").innerHTML = `<p class="sky-loading">天気を読み込めませんでした。時間をおいて開き直してください。</p>`; });
 
 /* ============================================================
    ご意見募集（Supabase に送る。読むことはできない設定）

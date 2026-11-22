@@ -358,6 +358,44 @@ section{padding:110px 0}
 .tip h4{font-size:17px;margin:10px 0 6px}
 .tip p{font-size:13px;color:var(--ink-2)}
 
+/* ---------- Google マップのボタン ---------- */
+.maps{display:flex;flex-wrap:wrap;gap:6px;align-items:center;border-top:1px dashed var(--line);padding-top:12px}
+.maps .sub{width:100%}
+.mp{display:inline-flex;align-items:center;gap:4px;font-size:12.5px;font-weight:700;text-decoration:none;color:var(--ink);background:var(--panel-2);border:1px solid var(--line);border-radius:999px;padding:6px 12px;transition:all .2s}
+.mp:hover{border-color:var(--accent);color:var(--accent)}
+
+/* ---------- 晴れそうな山の候補 ---------- */
+.sky-sec{background:linear-gradient(180deg,#e2ebee 0%,var(--bg) 100%);border-bottom:1px solid var(--line)}
+.sky-days{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:22px}
+.sky-days button{border:1px solid var(--line);background:var(--panel);border-radius:14px;padding:8px 16px;font-size:13px;color:var(--ink-2);display:flex;flex-direction:column;align-items:center;line-height:1.3;min-width:78px;transition:all .2s}
+.sky-days button b{font-family:var(--title);font-weight:500;font-size:15px;color:var(--ink)}
+.sky-days button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.sky-days button[aria-pressed="true"] b{color:var(--accent-ink)}
+.sky-groups{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px}
+.sky-g{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px 18px 14px}
+.sky-g h3{font-family:var(--title-jp);font-weight:400;font-size:19px;display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.sky-g h3 .n{margin-left:auto;font-family:var(--display);font-size:20px;color:var(--ink-3)}
+.sky-g.is-sun{background:linear-gradient(160deg,#fff8ef,var(--panel) 60%);border-color:#efdcc8}
+.sky-g ul{list-style:none;display:flex;flex-direction:column;gap:4px}
+.sky-g li button{width:100%;display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:baseline;background:none;border:0;border-radius:8px;padding:6px 8px;text-align:left;font-size:14px;color:var(--ink)}
+.sky-g li button:hover{background:var(--panel-2)}
+.sky-g li .wx{font-size:12px;color:var(--ink-2);white-space:nowrap}
+.sky-g li .tm{font-family:var(--display);font-size:15px;color:var(--ink-3);letter-spacing:.04em}
+.sky-g .none{font-size:13px;color:var(--ink-3);padding:6px 8px}
+.sky-links{margin-top:22px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.sky-links .sub{width:100%}
+.sky-note{margin-top:14px;font-size:12px;color:var(--ink-3);line-height:1.8}
+.sky-note a{color:var(--ink-2)}
+.sky-loading{color:var(--ink-3);font-size:14px;padding:20px 0}
+.radar .dot.wx-sun .core{filter:drop-shadow(0 0 5px #f2b98f)}
+.radar .dot.wx-sun::before{content:""}
+.radar .dot .sunring{fill:none;stroke:#e8a77f;stroke-width:2;opacity:0}
+.radar .dot.wx-sun .sunring{opacity:.9}
+.radar .dot.wx-bad{opacity:.38}
+.c-wx{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:12.5px;color:var(--ink-2)}
+.c-wx span{background:var(--panel-2);border:1px solid var(--line);border-radius:8px;padding:2px 8px;white-space:nowrap}
+.c-wx span b{font-weight:700;color:var(--ink)}
+
 /* ---------- voice（ご意見募集） ---------- */
 .voice-sec{background:var(--bg-2);border-top:1px solid var(--line)}
 .voice{max-width:820px;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:32px;display:flex;flex-direction:column;gap:20px;box-shadow:var(--shadow)}

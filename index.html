@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@300;500&family=Yusei+Magic&family=Klee+One:wght@600&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap" rel="stylesheet">
 <meta name="theme-color" content="#eef1ee">
-<link rel="stylesheet" href="assets/style.css?v=7">
+<link rel="stylesheet" href="assets/style.css?v=9">
 </head>
 <body>
 
@@ -25,6 +25,7 @@
   </a>
   <ul>
     <li><a href="#radar">RADAR</a></li>
+    <li><a href="#sky">SKY</a></li>
     <li><a href="#diary">DIARY</a></li>
     <li><a href="#traverse">TRAVERSE</a></li>
     <li><a href="#routes">ROUTES</a></li>
@@ -89,12 +90,29 @@
   </div>
 </section>
 
+<!-- SKY -->
+<section class="sky-sec" id="sky">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <div class="num">02 /</div>
+        <h2>FAIR WEATHER<small>晴れそうな山の候補</small></h2>
+      </div>
+      <p>山頂あたりの高さの、朝6時〜午後3時の雨・雲・風から、晴れそうな山をざっくり並べました。候補を探すための目安です。行く前は、山専門の天気予報で確認してください。</p>
+    </div>
+    <div class="sky-days" id="skyDays" role="group" aria-label="日にち"></div>
+    <div id="skyBody"><p class="sky-loading">天気を読み込んでいます…</p></div>
+    <div class="sky-links" id="skyLinks"></div>
+    <p class="sky-note">天気データ：<a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo.com</a>（CC BY 4.0）。一般向けの予報をもとにした目安で、山の天気は外れやすいので、登る・登らないの判断には使わないでください。雷や強風の注意報は気象庁で確認できます。</p>
+  </div>
+</section>
+
 <!-- DIARY -->
 <section class="log-sec" id="diary">
   <div class="wrap">
     <div class="sec-head">
       <div>
-        <div class="num">02 /</div>
+        <div class="num">03 /</div>
         <h2>TEKUTEKU DIARY<small>てくてく日記 — 歩いて、思ったこと</small></h2>
       </div>
       <p>歩いた日の感想を、のんびり気ままに。動画は YouTube、くわしい軌跡と写真は YAMAP にあります。</p>
@@ -110,7 +128,7 @@
   <div class="wrap">
     <div class="sec-head">
       <div>
-        <div class="num">03 /</div>
+        <div class="num">04 /</div>
         <h2>TRAVERSE<small>縦走ルート — 尾根をつないで歩く</small></h2>
       </div>
       <p>登った山とは別の場所へ下りる、縦走のルートだけを集めました。いくつもの山頂をつなぐコースもあります。押すとくわしい行き方と帰り方が出ます。</p>
@@ -130,7 +148,7 @@
   <div class="wrap">
     <div class="sec-head">
       <div>
-        <div class="num">04 /</div>
+        <div class="num">05 /</div>
         <h2>ROUTES<small>山ごとの登山ルート</small></h2>
       </div>
       <p>1つの山にいくつもの登り方があります。カードの中のタブでコースを切り替えられます。時間は目安で、乗り継ぎによって変わります。</p>
@@ -171,7 +189,7 @@
   <div class="wrap">
     <div class="sec-head">
       <div>
-        <div class="num">05 /</div>
+        <div class="num">06 /</div>
         <h2>BEFORE YOU GO<small>山旅の心得</small></h2>
       </div>
     </div>
@@ -190,7 +208,7 @@
   <div class="wrap">
     <div class="sec-head">
       <div>
-        <div class="num">06 /</div>
+        <div class="num">07 /</div>
         <h2>VOICE<small>ご意見募集 — ひとことでも、うれしいです</small></h2>
       </div>
       <p>情報のまちがい、載せてほしい山、行ってみた感想など、なんでも送ってください。送られた内容はサイトには表示されず、てくてく、さんぽ だけが読みます。</p>
@@ -250,11 +268,11 @@
   </div>
 </dialog>
 
-<script src="data/config.js?v=6"></script>
-<script src="data/mountains.js?v=5"></script>
+<script src="data/config.js?v=8"></script>
+<script src="data/mountains.js?v=8"></script>
 <script src="data/courses.js"></script>
 <script src="data/records.js"></script>
 <script src="data/memos.js"></script>
-<script src="assets/app.js?v=6"></script>
+<script src="assets/app.js?v=10"></script>
 </body>
 </html>
