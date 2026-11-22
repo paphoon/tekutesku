@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Klee+One:wght@600&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap" rel="stylesheet">
 <meta name="theme-color" content="#eef1ee">
-<link rel="stylesheet" href="assets/style.css?v=5">
+<link rel="stylesheet" href="assets/style.css?v=6">
 </head>
 <body>
 
@@ -28,6 +28,7 @@
     <li><a href="#diary">DIARY</a></li>
     <li><a href="#traverse">TRAVERSE</a></li>
     <li><a href="#routes">ROUTES</a></li>
+    <li><a href="#voice">VOICE</a></li>
   </ul>
 </header>
 
@@ -183,6 +184,51 @@
     </div>
   </div>
 </section>
+
+<!-- VOICE -->
+<section class="voice-sec" id="voice">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <div class="num">06 /</div>
+        <h2>VOICE<small>ご意見募集 — ひとことでも、うれしいです</small></h2>
+      </div>
+      <p>情報のまちがい、載せてほしい山、行ってみた感想など、なんでも送ってください。送られた内容はサイトには表示されず、てくてく、さんぽ だけが読みます。</p>
+    </div>
+    <form class="voice" id="voiceForm" novalidate>
+      <fieldset class="v-field">
+        <legend>どんなこと？</legend>
+        <div class="v-cats" id="vCats">
+          <label><input type="radio" name="category" value="まちがい"><span>🔧 情報のまちがい</span></label>
+          <label><input type="radio" name="category" value="載せてほしい山"><span>⛰ 載せてほしい山</span></label>
+          <label><input type="radio" name="category" value="感想" checked><span>💬 感想</span></label>
+          <label><input type="radio" name="category" value="その他"><span>✉ その他</span></label>
+        </div>
+      </fieldset>
+      <div class="v-row">
+        <label class="v-field">
+          <span class="v-label">どの山のこと？<em>なくてもOK</em></span>
+          <select name="mountain" id="vMountain"><option value="">（とくになし）</option></select>
+        </label>
+        <label class="v-field">
+          <span class="v-label">ニックネーム<em>なくてもOK</em></span>
+          <input type="text" name="nickname" maxlength="40" autocomplete="nickname" placeholder="例：週末ハイカー">
+        </label>
+      </div>
+      <label class="v-field">
+        <span class="v-label">ご意見<em class="v-count" id="vCount">0 / 2000</em></span>
+        <textarea name="message" id="vMessage" rows="6" maxlength="2000" required placeholder="例：陣馬高原下へのバスは、土日は8時台が混みます。"></textarea>
+      </label>
+      <!-- 機械による自動送信よけ（人には見えない欄） -->
+      <label class="v-hp" aria-hidden="true">website<input type="text" name="website" tabindex="-1" autocomplete="off"></label>
+      <div class="v-foot">
+        <p class="v-privacy">メールアドレスなどの連絡先は集めていません。個人が分かることは書かないでください。返信はできないので、ご了承ください。</p>
+        <button type="submit" class="btn v-send" id="vSend">送る →</button>
+      </div>
+      <p class="v-status" id="vStatus" role="status" aria-live="polite"></p>
+    </form>
+  </div>
+</section>
 </main>
 
 <footer>
@@ -204,11 +250,11 @@
   </div>
 </dialog>
 
-<script src="data/config.js"></script>
+<script src="data/config.js?v=6"></script>
 <script src="data/mountains.js?v=5"></script>
 <script src="data/courses.js"></script>
 <script src="data/records.js"></script>
 <script src="data/memos.js"></script>
-<script src="assets/app.js?v=5"></script>
+<script src="assets/app.js?v=6"></script>
 </body>
 </html>

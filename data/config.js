@@ -24,4 +24,11 @@ TEKU.config = {
 
   // 登った日から何日たったら記録を表示するか（留守が分からないように）
   recordDelayDays: 3,
+
+  // ご意見募集（Supabase）。この鍵は「送る」ことしかできない公開用の鍵です。
+  // 届いた意見は Supabase の管理画面 → Table Editor → feedback で読めます。
+  feedback: {
+    url: "https://jqyfsfrqwzjgvfshapwe.supabase.co",   // test-db
+    key: "sb_publishable_o3iQTd3BUJGFunJ3HihiqA_ZUa-IMu1",
+  },
 };

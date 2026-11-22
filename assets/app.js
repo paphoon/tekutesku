@@ -448,6 +448,7 @@ function cardHTML(m, i){
       <div class="cpanel" role="tabpanel">${panelHTML(m, sel)}</div>
       <div><div class="sub">SEASON — 黄緑がおすすめの時期</div><div class="months">${months}</div></div>
       <div class="tags">${m.tags.map(t=>`<span>#${esc(t)}</span>`).join("")}</div>
+      <button type="button" class="c-voice" data-voice="${m.id}">✉ この山について意見を送る</button>
     </div>
   </article>`;
 }
@@ -464,6 +465,8 @@ cardsEl.addEventListener("click", e => {
   }
   const dy = e.target.closest("[data-diary]");
   if (dy){ openDiary(dy.dataset.diary); return; }
+  const vo = e.target.closest("[data-voice]");
+  if (vo){ openVoice(vo.dataset.voice); return; }
   const go = e.target.closest("[data-goto]");
   if (go) jumpTo(go.dataset.goto, go.dataset.course);
 });
@@ -659,6 +662,61 @@ svg.addEventListener("keydown", e => { const d = e.target.closest(".dot"); if (d
 info.addEventListener("click", e => {
   const a = e.target.closest("[data-jump]"); if (!a) return;
   e.preventDefault(); jumpTo(a.dataset.jump);
+});
+
+/* ============================================================
+   ご意見募集（Supabase に送る。読むことはできない設定）
+   ============================================================ */
+const vForm = $("voiceForm"), vMsg = $("vMessage"), vStatus = $("vStatus"), vSend = $("vSend");
+$("vMountain").insertAdjacentHTML("beforeend",
+  MOUNTAINS.map(m => `<option value="${esc(m.name)}">${esc(m.name)}（${esc(m.pref)}）</option>`).join("") +
+  `<option value="その他の山">その他の山</option>`);
+const updCount = () => { $("vCount").textContent = `${vMsg.value.length} / 2000`; };
+vMsg.addEventListener("input", updCount);
+
+function openVoice(mid){
+  const m = byId[mid];
+  if (m) $("vMountain").value = m.name;
+  $("voice").scrollIntoView({behavior: reduce?"auto":"smooth", block:"start"});
+  setTimeout(() => vMsg.focus({preventScroll:true}), reduce ? 0 : 600);
+}
+
+vForm.addEventListener("submit", async e => {
+  e.preventDefault();
+  const fd = new FormData(vForm);
+  const message = String(fd.get("message")||"").trim();
+  vStatus.className = "v-status";
+  if (fd.get("website")) { vStatus.textContent = "送りました。ありがとうございます！"; vStatus.classList.add("ok"); return; } // 機械の送信は捨てる
+  if (message.length < 2){ vStatus.textContent = "ご意見を書いてから送ってください。"; vStatus.classList.add("ng"); vMsg.focus(); return; }
+  let last = 0; try { last = +localStorage.getItem("teku-voice-at") || 0; } catch {}
+  if (Date.now() - last < 30000){ vStatus.textContent = "少し時間をおいてから、もう一度送ってください。"; vStatus.classList.add("ng"); return; }
+  const fb = CFG.feedback || {};
+  if (!fb.url || !fb.key){ vStatus.textContent = "いまは送れません。"; vStatus.classList.add("ng"); return; }
+
+  vSend.disabled = true; vSend.textContent = "送っています…";
+  try {
+    const res = await fetch(`${fb.url}/rest/v1/feedback`, {
+      method: "POST",
+      headers: {"apikey": fb.key, "Content-Type": "application/json", "Prefer": "return=minimal"},
+      body: JSON.stringify({
+        category: fd.get("category") || "その他",
+        message: message.slice(0, 2000),
+        nickname: String(fd.get("nickname")||"").trim().slice(0, 40) || null,
+        mountain: fd.get("mountain") || null,
+        page: (location.pathname + location.hash).slice(0, 200),
+      }),
+    });
+    if (!res.ok) throw new Error(res.status);
+    try { localStorage.setItem("teku-voice-at", String(Date.now())); } catch {}
+    vForm.reset(); updCount();
+    vStatus.textContent = "送りました。ありがとうございます！ てくてく読ませてもらいます。";
+    vStatus.classList.add("ok");
+  } catch(err){
+    vStatus.textContent = "うまく送れませんでした。時間をおいて、もう一度試してください。";
+    vStatus.classList.add("ng");
+  } finally {
+    vSend.disabled = false; vSend.textContent = "送る →";
+  }
 });
 
 /* ---------- はじめに描く ---------- */
