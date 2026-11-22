@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Klee+One:wght@600&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap" rel="stylesheet">
 <meta name="theme-color" content="#eef1ee">
-<link rel="stylesheet" href="assets/style.css?v=4">
+<link rel="stylesheet" href="assets/style.css?v=5">
 </head>
 <body>
 
@@ -65,7 +65,12 @@
         <div class="num">01 /</div>
         <h2>ACCESS RADAR<small>東京駅からの距離と方角</small></h2>
       </div>
-      <p>中心が東京駅。外の円ほど時間がかかります。点を押すと山の情報が出ます。</p>
+      <p>中心が東京駅。外の円ほど時間がかかります。電車と車を切り替えると、山が動きます。点を押すと山の情報が出ます。</p>
+    </div>
+    <div class="mode-switch" role="radiogroup" aria-label="行き方" data-mode-switch>
+      <button type="button" role="radio" data-mode="train" aria-checked="true">🚃 電車・バス</button>
+      <button type="button" role="radio" data-mode="car" aria-checked="false">🚗 車</button>
+      <span class="thumb" aria-hidden="true"></span>
     </div>
     <div class="radar-grid">
       <svg class="radar" id="radarSvg" viewBox="0 0 600 600" role="img" aria-label="東京駅を中心とした山の方角とアクセス時間の図"></svg>
@@ -77,6 +82,7 @@
           <span><i style="background:var(--lv3)"></i>上級</span>
           <span><i class="ring"></i>登った山</span>
         </div>
+        <p class="mode-note" id="modeNote"></p>
       </div>
     </div>
   </div>
@@ -131,6 +137,13 @@
   </div>
   <div class="toolbar">
     <div class="wrap">
+      <div class="tb-group"><span class="tb-label">ACCESS</span>
+        <div class="mode-switch small" role="radiogroup" aria-label="行き方" data-mode-switch>
+          <button type="button" role="radio" data-mode="train" aria-checked="true">🚃 電車</button>
+          <button type="button" role="radio" data-mode="car" aria-checked="false">🚗 車</button>
+          <span class="thumb" aria-hidden="true"></span>
+        </div>
+      </div>
       <div class="tb-group" id="regionGroup"><span class="tb-label">REGION</span><div class="chips" id="regionChips"></div></div>
       <div class="tb-group"><span class="tb-label">AREA</span><div class="chips" id="prefChips"></div></div>
       <div class="tb-group"><span class="tb-label">LEVEL</span><div class="chips" id="lvChips"></div></div>
@@ -192,10 +205,10 @@
 </dialog>
 
 <script src="data/config.js"></script>
-<script src="data/mountains.js"></script>
+<script src="data/mountains.js?v=5"></script>
 <script src="data/courses.js"></script>
 <script src="data/records.js"></script>
 <script src="data/memos.js"></script>
-<script src="assets/app.js?v=4"></script>
+<script src="assets/app.js?v=5"></script>
 </body>
 </html>

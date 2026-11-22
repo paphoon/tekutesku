@@ -57,7 +57,16 @@ MOUNTAINS.forEach(m => {
   m.maxLv = Math.max(...m.courses.map(c=>c.lv));
   m.logs = [];
   m.memo = null;
+  const car = Object.assign({}, (TEKU.carAccess||{})[m.id] || {}, m.car || {});
+  m.car = Object.keys(car).length ? car : null;
 });
+
+/* ---------- 電車／車 ---------- */
+let mode = "train";
+try { if (localStorage.getItem("teku-mode") === "car") mode = "car"; } catch {}
+const carMin = (m, c) => (c && c.car && c.car.min) || (m.car && m.car.min) || null;
+const accessOf = (m, c) => mode === "car" ? (carMin(m, c) || m.access) : ((c && c.access) || m.access);
+const MODE_LABEL = {train:"🚃 電車・バス", car:"🚗 車"};
 (TEKU.memos||[]).forEach(x => {
   const m = findMountain(x.mountain);
   if (m && (x.tip || MEMO_ROWS.some(([k]) => x[k]))) m.memo = x;
@@ -347,10 +356,10 @@ function pathHTML(path){
 }
 function carText(m, c){
   const car = Object.assign({}, m.car||{}, c.car||{});
-  return [car.time, car.parking, car.note].filter(Boolean).join("　");
+  return [car.min ? `東京駅から約${fmtH(car.min)}` : car.time, car.via, car.parking, car.note].filter(Boolean).join(" ・ ");
 }
 function panelHTML(m, c){
-  const access = c.access || m.access;
+  const access = accessOf(m, c);
   const route = c.route || m.route;
   const others = c.peaks.length > 1 ? `<div class="peaks">この道で登れる山：${c.peaks.map(id =>
       `<button type="button" data-goto="${id}" data-course="${c.id}" ${id===m.id?"disabled":""}>${esc(byId[id].name)}</button>`).join("")}</div>` : "";
@@ -363,7 +372,7 @@ function panelHTML(m, c){
       <div class="right"><span class="tb" data-t="${c.type}">${c.type}</span><span class="suit">${suit}</span></div>
     </div>
     <div class="c-kpi">
-      <div><b>${fmtH(access)}</b><span>東京駅から</span></div>
+      <div><b>${fmtH(access)}</b><span>${mode==="car"?"🚗":"🚃"} 東京駅から</span></div>
       <div><b>${c.walk ? fmtH(c.walk) : "–"}</b><span>歩く時間</span></div>
       <div><b>${c.dist ? c.dist+"km" : "–"}</b><span>歩く距離</span></div>
     </div>
@@ -468,11 +477,11 @@ function render(){
     .filter(({m}) => (state.region==="すべて"||m.region===state.region) && (state.pref==="すべて"||m.pref===state.pref) && m.courses.some(matches));
   const mine = m => (m.logs.length?2:0) + (m.memo?1:0);
   const s = {
-    access:(a,b)=>a.m.access-b.m.access,
+    access:(a,b)=>accessOf(a.m)-accessOf(b.m),
     elev:(a,b)=>b.m.elev-a.m.elev,
     time:(a,b)=>a.m.minWalk-b.m.minWalk,
     courses:(a,b)=>b.m.courses.length-a.m.courses.length,
-    done:(a,b)=>mine(b.m)-mine(a.m) || a.m.access-b.m.access,
+    done:(a,b)=>mine(b.m)-mine(a.m) || accessOf(a.m)-accessOf(b.m),
   }[state.sort];
   list.sort(s);
   $("count").textContent = `${list.length} / ${MOUNTAINS.length}`;
@@ -548,8 +557,26 @@ function drawRadar(){
   [["N",0],["E",90],["S",180],["W",270]].forEach(([l,a]) => {
     out += `<text class="compass" x="${CX+Math.sin(a*Math.PI/180)*(RR+22)}" y="${CX-Math.cos(a*Math.PI/180)*(RR+22)+6}" text-anchor="middle">${l}</text>`;
   });
+  // 点は (0,0) に描いて、位置は transform で動かす（電車↔車で山がすっと動く）
+  MOUNTAINS.forEach(m => {
+    const col = lvColor(m.minLv);
+    out += `<g class="dot" data-id="${m.id}" tabindex="0" role="button" aria-label="${esc(m.name)}">
+      <circle r="16" fill="${col}" opacity=".12"/>
+      ${m.logs.length ? `<circle class="done" r="11"/>` : ""}
+      <polyline stroke="${col}" stroke-opacity=".5" fill="none" points="0,0 0,0"/>
+      <circle class="core" r="6" fill="${col}"/>
+      <text>${esc(m.name)}</text>
+    </g>`;
+  });
+  out += `<circle class="hub" cx="${CX}" cy="${CX}" r="7"/><circle cx="${CX}" cy="${CX}" r="14" fill="none" style="stroke:var(--accent)" opacity=".4"/>
+    <text class="hub-label" x="${CX}" y="${CX+30}" text-anchor="middle">${esc(CFG.origin||"東京駅")}</text>`;
+  svg.innerHTML = out;
+  placeDots(false);
+}
+
+function radarLayout(){
   const pts = MOUNTAINS.map(m => {
-    const a = m.bearing*Math.PI/180, r = rad(m.access);
+    const a = m.bearing*Math.PI/180, r = rad(accessOf(m));
     const x = CX + Math.sin(a)*r, y = CX - Math.cos(a)*r;
     const left = Math.sin(a) < -0.1;
     return {m, x, y, left, ly:y, lx: x + (left?-14:14), w: m.name.length*13};
@@ -566,21 +593,46 @@ function drawRadar(){
     }
     if (!moved) break;
   }
-  pts.forEach(p => {
-    const col = lvColor(p.m.minLv);
-    const shift = Math.abs(p.ly - p.y) > 3;
-    out += `<g class="dot" data-id="${p.m.id}" tabindex="0" role="button" aria-label="${esc(p.m.name)}">
-      <circle cx="${p.x}" cy="${p.y}" r="16" fill="${col}" opacity=".12"/>
-      ${p.m.logs.length ? `<circle class="done" cx="${p.x}" cy="${p.y}" r="11"/>` : ""}
-      ${shift ? `<polyline points="${p.x + (p.left?-6:6)},${p.y} ${p.lx + (p.left?4:-4)},${p.ly}" stroke="${col}" stroke-opacity=".5" fill="none"/>` : ""}
-      <circle class="core" cx="${p.x}" cy="${p.y}" r="6" fill="${col}"/>
-      <text x="${p.lx}" y="${p.ly+4}" text-anchor="${p.left?"end":"start"}">${esc(p.m.name)}</text>
-    </g>`;
-  });
-  out += `<circle class="hub" cx="${CX}" cy="${CX}" r="7"/><circle cx="${CX}" cy="${CX}" r="14" fill="none" style="stroke:var(--accent)" opacity=".4"/>
-    <text class="hub-label" x="${CX}" y="${CX+30}" text-anchor="middle">${esc(CFG.origin||"東京駅")}</text>`;
-  svg.innerHTML = out;
+  return pts;
 }
+
+let moveTimer = 0;
+function placeDots(animate){
+  const pts = radarLayout();
+  svg.classList.toggle("noanim", !animate || reduce);
+  if (animate && !reduce){ svg.classList.add("moving"); clearTimeout(moveTimer); moveTimer = setTimeout(() => svg.classList.remove("moving"), 850); }
+  pts.forEach(p => {
+    const g = svg.querySelector(`.dot[data-id="${p.m.id}"]`); if (!g) return;
+    g.style.transform = `translate(${p.x}px, ${p.y}px)`;
+    const dx = p.lx - p.x, dy = p.ly - p.y;
+    const t = g.querySelector("text");
+    t.setAttribute("x", dx); t.setAttribute("y", dy + 4);
+    t.setAttribute("text-anchor", p.left ? "end" : "start");
+    const pl = g.querySelector("polyline");
+    pl.setAttribute("points", Math.abs(dy) > 3 ? `${p.left?-6:6},0 ${dx + (p.left?4:-4)},${dy}` : "0,0 0,0");
+  });
+  if (!animate) requestAnimationFrame(() => svg.classList.remove("noanim"));
+}
+
+/* ---------- 切り替えボタン ---------- */
+function setMode(next, animate){
+  mode = next;
+  try { localStorage.setItem("teku-mode", mode); } catch {}
+  document.querySelectorAll("[data-mode-switch]").forEach(sw => {
+    sw.dataset.mode = mode;
+    sw.querySelectorAll("[data-mode]").forEach(b => b.setAttribute("aria-checked", b.dataset.mode === mode));
+  });
+  $("modeNote").textContent = mode === "car"
+    ? "車の時間は、東京駅から登山口の駐車場までの目安です（渋滞なし）。縦走は駐車場に戻りにくいので、往復・周回のルートがおすすめです。"
+    : "電車の時間は、東京駅から登山口までの電車とバスの目安です。乗り継ぎによって変わります。";
+  if (svg.querySelector(".dot")) placeDots(animate);
+  showInfo(currentInfo);
+  if (animate) render();
+}
+document.querySelectorAll("[data-mode-switch]").forEach(sw => sw.addEventListener("click", e => {
+  const b = e.target.closest("[data-mode]");
+  if (b && b.dataset.mode !== mode) setMode(b.dataset.mode, true);
+}));
 
 const info = $("radarInfo");
 let currentInfo = MOUNTAINS[0].id;
@@ -592,7 +644,12 @@ function showInfo(id){
   const memoLine = m.memo && (m.memo.tip || m.memo.good);
   info.innerHTML = `<div class="ri-pref">${esc(m.region||"")} ・ ${esc(m.pref)} ・ ${lvText(m.minLv,m.maxLv)}</div>
     <h3>${esc(m.name)}${m.logs.length?`<span class="done-badge">✓ 登った</span>`:""}</h3>
-    <div class="ri-elev">${m.elev.toLocaleString()}M ・ 東京駅から ${fmtH(m.access)} ・ ${m.courses.length}コース</div>
+    <div class="ri-elev">${m.elev.toLocaleString()}M ・ ${mode==="car"?"🚗":"🚃"} 東京駅から ${fmtH(accessOf(m))} ・ ${m.courses.length}コース</div>
+    ${mode==="car" && m.car ? `<dl class="ri-car">
+        ${m.car.via ? `<dt>道</dt><dd>${esc(m.car.via)}</dd>` : ""}
+        ${m.car.parking ? `<dt>駐車場</dt><dd>${esc(m.car.parking)}</dd>` : ""}
+        ${m.car.note ? `<dt>ひとこと</dt><dd>${esc(m.car.note)}</dd>` : ""}
+      </dl>` : ""}
     ${memoLine ? `<div class="ri-memo">${mascotImg() || "✎"}<span>${esc(memoLine)}</span></div>` : `<p>${esc(m.desc)}</p>`}
     <div class="ri-courses">${counts.map(([t,n])=>`<span class="tb" data-t="${t}">${t} ${n}</span>`).join("")}</div>
     <a class="btn" href="#m-${m.id}" data-jump="${m.id}">ルートを見る →</a>`;
@@ -608,7 +665,7 @@ info.addEventListener("click", e => {
 render();
 renderTrav();
 drawRadar();
-showInfo(currentInfo);
+setMode(mode, false);
 loadLogs();
 
 })();

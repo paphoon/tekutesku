@@ -116,6 +116,23 @@ section{padding:110px 0}
 .btn{margin-top:20px;display:inline-flex;align-items:center;gap:8px;background:var(--accent);color:var(--accent-ink);border:0;border-radius:999px;padding:10px 20px;font-weight:700;font-size:14px;text-decoration:none}
 .legend{display:flex;gap:18px;margin-top:18px;flex-wrap:wrap;font-size:12px;color:var(--ink-2)}
 .legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:-1px}
+/* 電車／車の切り替え */
+.mode-switch{position:relative;display:inline-grid;grid-template-columns:1fr 1fr;background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:4px;margin:-12px 0 28px;box-shadow:var(--shadow)}
+.mode-switch button{position:relative;z-index:1;border:0;background:none;padding:10px 22px;font-size:15px;font-weight:700;color:var(--ink-2);border-radius:999px;transition:color .3s;white-space:nowrap}
+.mode-switch button[aria-checked="true"]{color:var(--accent-ink)}
+.mode-switch .thumb{position:absolute;z-index:0;top:4px;bottom:4px;left:4px;width:calc(50% - 4px);border-radius:999px;background:var(--accent);transition:transform .45s cubic-bezier(.2,.8,.2,1)}
+.mode-switch[data-mode="car"] .thumb{transform:translateX(100%)}
+.mode-switch.small{margin:0;padding:3px;box-shadow:none}
+.mode-switch.small button{padding:4px 12px;font-size:12.5px}
+.mode-switch.small .thumb{top:3px;bottom:3px;left:3px;width:calc(50% - 3px)}
+.radar .dot{transition:transform .9s cubic-bezier(.2,.8,.2,1)}
+.radar.noanim .dot{transition:none}
+.radar .dot text,.radar .dot polyline{transition:opacity .3s}
+.radar.moving .dot text,.radar.moving .dot polyline{opacity:0}
+.mode-note{margin-top:10px;font-size:12px;color:var(--ink-3)}
+.ri-car{margin-top:14px;display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:13px;color:var(--ink-2)}
+.ri-car dt{font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--ink-3);padding-top:2px}
+.ri-car dd{margin:0}
 .legend i.ring{background:none;border:1.5px dashed var(--ink-2)}
 
 /* ---------- badges ---------- */
