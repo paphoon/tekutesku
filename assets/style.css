@@ -400,6 +400,22 @@ footer .big{font-family:var(--display);font-size:clamp(56px,13vw,170px);line-hei
 .foot-yt i::after{content:"";border-style:solid;border-width:5px 0 5px 8px;border-color:transparent transparent transparent #fff;margin-left:2px}
 .foot-yt img{width:30px;height:30px;border-radius:50%;background:#f4f1e8;object-fit:contain}
 
+/* ---------- 表題のフォント ----------
+   英字：Montserrat 細め（横に広く、すっきり）
+   日本語：Yusei Magic（マーカーで書いた感じ）
+   数字やラベルは Bebas Neue のまま */
+:root{--title:"Montserrat","Helvetica Neue",Arial,sans-serif;--title-jp:"Yusei Magic","Zen Kaku Gothic New",sans-serif}
+.logo{font-family:var(--title);font-weight:500;font-size:15px;letter-spacing:.2em}
+@media (max-width:700px){.logo{font-size:13px;letter-spacing:.14em}}
+.hero h1{font-family:var(--title);font-weight:300;font-size:clamp(40px,8.2vw,118px);line-height:1.04;letter-spacing:.07em}
+.hero h1 .jp{font-family:var(--title-jp);font-weight:400;font-size:clamp(26px,4.4vw,54px);letter-spacing:.1em;margin-top:20px}
+.sec-head .num{font-family:var(--title);font-weight:500;font-size:13px;letter-spacing:.28em}
+.sec-head h2{font-family:var(--title);font-weight:300;font-size:clamp(30px,5.2vw,60px);line-height:1.08;letter-spacing:.08em}
+.sec-head h2 small{font-family:var(--title-jp);font-weight:400;font-size:clamp(16px,2.1vw,20px);letter-spacing:.12em;margin-top:14px}
+.c-name{font-family:var(--title-jp);font-weight:400;font-size:27px}
+.radar-info h3{font-family:var(--title-jp);font-weight:400}
+footer .big{font-family:var(--title);font-weight:300;font-size:clamp(30px,8vw,110px);line-height:1;letter-spacing:.06em}
+
 @media (prefers-reduced-motion:reduce){
   *{animation:none!important;transition:none!important;scroll-behavior:auto!important}
   .card{opacity:1;transform:none}

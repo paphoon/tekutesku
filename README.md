@@ -86,7 +86,7 @@
 
 ## ご意見募集（Supabase）
 
-- サイトの「VOICE」から送られた意見は、Supabase のプロジェクト **test-db**（東京）の表 `feedback` にたまります
+- サイトの「VOICE」から送られた意見は、Supabase のプロジェクト **tekuteku-sanpo**（東京）の表 `feedback` にたまります
 - 読み方：https://supabase.com/dashboard/project/jqyfsfrqwzjgvfshapwe → 左の **Table Editor** → `feedback`
 - サイトを見た人は「送る」ことしかできず、ほかの人の意見は読めません（設定済み）
 - 1 分に 30 件をこえる送信は受け付けない歯止めと、機械による自動送信よけを入れてあります
